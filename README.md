@@ -52,7 +52,7 @@ FPS is `1000 / median flip interval in milliseconds`. It measures presentation o
 ## Contents
 
 - [Engineering notes and remaining blockers](docs/ENGINEERING-NOTES.md).
-- [Linux discussion update](docs/LINUX-DISCUSSION-DRAFT.md).
+- [Published Linux discussion update](https://github.com/boykopovar/AnyPS5/discussions/2884#discussioncomment-18993375) ([local copy](docs/LINUX-DISCUSSION-DRAFT.md)).
 - [Submitted current-main buffer-pool PR #7056](https://github.com/boykopovar/AnyPS5/pull/7056) ([submission text](docs/PR-DRAFT.md)), plus [other candidates and limitations](docs/UPSTREAM-CANDIDATES.md).
 - [PRs used, local adaptations and attribution](docs/PR-INTEGRATION.md): 22 identified PR sources, plus the upstream EXEC equivalent, with verified authors and status.
 - [Combined local source export and application notes](docs/LOCAL-INTEGRATION.md): the integrated AnyPS5 delta and SPIRV-Tools delta against their recorded bases.
