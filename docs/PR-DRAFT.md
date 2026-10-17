@@ -8,6 +8,8 @@ Add a regression through `DeviceBuffer` that forces large-buffer eviction, check
 
 Related: #4472 changes VRAM-pressure retention; this PR changes size-based tier selection and has no dependency on it. The broader Linux/Yōtei investigation is tracked in discussion #2884. No title FPS or RAM improvement is claimed for this isolated change.
 
+Overlap review: #6882 and #7057 address slab-allocation cleanup and failed memory binding, respectively. The retention fixture and its default-suite call have been moved away from their insertion points; `git merge-tree` now combines this branch cleanly with their reviewed heads. #6943 still overlaps the command-line test dispatcher (`main`), not the production tier selection. Its selector needs to be reconciled when either branch lands; there is no production dependency on #6943. The conflicting-base BufferPool deltas in #5987 and #6553 were also inspected: they change allocation fallback/placement, not `tierFor`.
+
 ### Tested
 
 Branch base: `ef674f5af3e4d0fe44fda10e46d36ead2c262c0e` (`main`). The focused tests, complete runtime build and native smoke test used `main` `f05fc7d953d30160cb05411875b2824fd10acc15` plus this correction; the subsequent rebase only adds upstream #7055, which changes the LoadExec test cleanup, with no production changes. Fedora 44 x86-64, GCC 16.2.1, Release, default `ANYPS5_ENABLE_SPIRV_TOOLS=OFF`.
@@ -16,6 +18,7 @@ Branch base: `ef674f5af3e4d0fe44fda10e46d36ead2c262c0e` (`main`). The focused te
 - Negative control: restore only the original `tierFor` condition, rebuild and run `APS5_STAGING_POOL_MIB=256 agc_buffer_pool_tests --small-device-retention`. It exits 1 with both retention/reallocation assertions failing. Restore the correction and rebuild for the final passing run.
 - `agc_device_memory_fallback`: passed.
 - `agc_driver_pooled_buffer_range`: passed on AMD Radeon RX 9060 XT 16 GB, locally modified Mesa 26.2.3 RADV, Fedora Linux. This real-GPU compatibility test checks exact buffer sizes and robust reads beyond the requested range; the new eviction regression itself uses the existing mock Vulkan allocator.
+- After relocating the fixture and default-suite call, rebuilt `agc_buffer_pool_tests`; all three buffer-pool CTests passed again.
 - `tools/check_conventions.py`: passed with the proposed title/body.
 - `tools/tests/test_test_registration.py`: 27 tests passed.
 - Built all system libraries (`libs`) and the relinker, reconverted PPSA26344 01.512.000 and checked imports: no unresolved imports. A separate cold-AnyPS5-cache native run ended in cgroup OOM after about 122 s at the 12 GiB RAM cap (1.22 GiB swap peak). No wolf/tree capture or title performance benefit was established; this is not a paired pool comparison. The original runtime was preserved.

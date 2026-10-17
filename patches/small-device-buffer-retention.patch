@@ -33,7 +33,7 @@ index 6ec77770b..ebf415fe5 100644
  }
  
 diff --git a/core/libs/prx/libSceAgcDriver/tests/BufferPool.cpp b/core/libs/prx/libSceAgcDriver/tests/BufferPool.cpp
-index f0ac0664a..1e320bad1 100644
+index f0ac0664a..2974c1f31 100644
 --- a/core/libs/prx/libSceAgcDriver/tests/BufferPool.cpp
 +++ b/core/libs/prx/libSceAgcDriver/tests/BufferPool.cpp
 @@ -2,6 +2,7 @@
@@ -44,8 +44,8 @@ index f0ac0664a..1e320bad1 100644
  #include <cstring>
  #include <cstdio>
  #include <deque>
-@@ -326,6 +327,31 @@ void SmallDeviceClasses() {
-     Expect(nextArgs.Handle() == tiny && mock.allocations == made, "a 20-byte device request did not reuse the retained 256-byte buffer of its class");
+@@ -210,6 +211,31 @@ void SizeClassesAndDirections() {
+     Expect(mock.sizes.at(writeBack.Handle()) == 10 * MiB + 512 * 1024, "a reused device buffer kept the VkBuffer of the earlier size");
  }
  
 +void SmallDeviceRetention() {
@@ -73,10 +73,10 @@ index f0ac0664a..1e320bad1 100644
 +    Expect(mock.liveBytes == 0 && mock.liveBuffers.empty(), "device pool tier retention leaked Vulkan objects");
 +}
 +
- void Slabs() {
-     Expect(BufferPool::SlabEligible(512, 256, 512, 64), "a size class with a smaller alignment and atom was refused a slab");
-     Expect(!BufferPool::SlabEligible(512, 1024, 512, 64), "a size class below its alignment was given a slab");
-@@ -530,14 +556,19 @@ void PartialSlabDoesNotRetry() {
+ void LargerClass() {
+     mock = MockDevice{};
+     auto context = mockContext();
+@@ -530,11 +556,16 @@ void PartialSlabDoesNotRetry() {
  
  }
  
@@ -90,10 +90,7 @@ index f0ac0664a..1e320bad1 100644
          SizeClassesAndDirections();
          LargerClass();
          KeptUntilFence();
++        SmallDeviceRetention();
          Budget();
          AddressAndHostUnchanged();
          SmallDeviceClasses();
-+        SmallDeviceRetention();
-         Slabs();
-         for (const auto result : {VK_ERROR_OUT_OF_DEVICE_MEMORY, VK_ERROR_OUT_OF_HOST_MEMORY}) {
-             AllocationRecovery(result, false);

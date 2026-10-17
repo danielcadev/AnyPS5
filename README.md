@@ -6,6 +6,8 @@ An October 2026 investigation of **Ghost of Yōtei, PPSA26344, version 01.512.00
 
 A subsequent smoke test of current `main` plus the isolated pool correction built and started successfully but ended in OOM after about 122 seconds with a cold AnyPS5 cache. It did not establish a wolf/tree milestone or an FPS comparison. [Fresh-base result and limits](docs/EVIDENCE.md#current-main-native-smoke-test--october-17).
 
+The intro was observed at nearly **20 FPS** before the slowdown toward the wolf. This is an approximate observation, separate from the measured tree-scene window.
+
 ## Screenshot milestones
 
 These three captures come from the same run, `anyps5-yotei-20261017-083159-9b94aa`, and are shown in presentation order. Original screenshots are included without postprocessing.

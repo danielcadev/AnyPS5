@@ -2,6 +2,8 @@
 
 Following the Linux bring-up reports here, our local stack now reaches the **wolf calibration with the Cross prompt, the tree scene, and “Select an Experience / Standard.”** The tree still has severe green/magenta corruption. **Playable gameplay is unverified.**
 
+The intro was observed at nearly **20 FPS**, before the slowdown toward the wolf (reported around presentation 676). This is an approximate observation, separate from the frame-timed tree result below.
+
 **Tested stack:** Ryzen 7 5700X, RX 9060 XT 16 GB, 32 GiB RAM, Linux/Wayland and locally modified Mesa 26.2.3 RADV. AnyPS5 starts from public revision `832247b0a09c140c436d26a7f8333ff34f3df016`, with local commits and adaptations listed in the report. These native results are **not stock current-main results**.
 
 **Investigation, in order:**

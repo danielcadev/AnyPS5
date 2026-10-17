@@ -10,7 +10,7 @@ The original condition fails the new retention regression; the corrected branch 
 
 [Submitted PR text](PR-DRAFT.md), [production delta](../patches/small-device-buffer-retention.patch), and [test results](../evidence/small-device-tests.log).
 
-Related open [#4472](https://github.com/boykopovar/AnyPS5/pull/4472) changes pressure-based retention, not this size-tier selection. Legacy scratch reuse is already covered by merged #1004 / #2233 and was excluded to preserve current exact Vulkan buffer-size semantics. No dependency is declared.
+Related open [#4472](https://github.com/boykopovar/AnyPS5/pull/4472) changes pressure-based retention, not this size-tier selection. Legacy scratch reuse is already covered by merged #1004 / #2233 and was excluded to preserve current exact Vulkan buffer-size semantics. No dependency is declared. The regression and default call were relocated to combine cleanly with reviewed #6882 / #7057 heads. #6943 still shares the command-line test dispatcher and needs selector reconciliation if either branch lands first; its slab-return implementation is not a duplicate of this fix.
 
 ## Vertex EXEC: overlap with an existing upstream contribution
 
@@ -34,4 +34,4 @@ The shared formatted-BDA span lookup passed GPU correctness tests, but enlarged 
 
 A discussion update belongs as a new comment at the end of the existing Linux thread, with status, tested stack, changes, measurements, screenshots, remaining blockers and AI assistance. Code proposals belong in separate, focused PRs using upstream's What / Tested / Checklist template.
 
-The production change is committed in a separate clean worktree and submitted as [PR #7056](https://github.com/boykopovar/AnyPS5/pull/7056), head `506c0159b886c0e69b9fe428353a73a4a4ba3ac8`. The personal fork and production branch have been published. The original modified research checkout is preserved. The report and images are hosted on the separate `research/yotei-linux-evidence` branch of the personal fork for the Linux discussion; they are excluded from the production PR, following upstream contribution policy.
+The production change is committed in a separate clean worktree and submitted as [PR #7056](https://github.com/boykopovar/AnyPS5/pull/7056), head `27ded2c4d1fff621cf860202c1c16aa5de5d394b`. The personal fork and production branch have been published. The original modified research checkout is preserved. The report and images are hosted on the separate `research/yotei-linux-evidence` branch of the personal fork for the Linux discussion; they are excluded from the production PR, following upstream contribution policy.
