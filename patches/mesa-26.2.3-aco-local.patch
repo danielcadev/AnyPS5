@@ -1,0 +1,231 @@
+diff --git a/src/amd/compiler/aco_ir.cpp b/src/amd/compiler/aco_ir.cpp
+--- a/src/amd/compiler/aco_ir.cpp
++++ b/src/amd/compiler/aco_ir.cpp
+@@ -37,6 +37,7 @@
+    {"nosched-vopd", DEBUG_NO_SCHED_VOPD},
+    {"perfinfo", DEBUG_PERF_INFO},
+    {"liveinfo", DEBUG_LIVE_INFO},
++   {"noldsspill", DEBUG_NO_LDS_SPILL},
+    {NULL, 0}};
+ 
+ static once_flag init_once_flag = ONCE_FLAG_INIT;
+diff --git a/src/amd/compiler/aco_ir.h b/src/amd/compiler/aco_ir.h
+--- a/src/amd/compiler/aco_ir.h
++++ b/src/amd/compiler/aco_ir.h
+@@ -47,6 +47,7 @@
+    DEBUG_NO_SCHED_ILP = 0x800,
+    DEBUG_NO_SCHED_VOPD = 0x1000,
+    DEBUG_VALIDATE_OPT = 0x2000,
++   DEBUG_NO_LDS_SPILL = 0x4000,
+ };
+ 
+ enum storage_class : uint8_t {
+diff --git a/src/amd/compiler/aco_spill.cpp b/src/amd/compiler/aco_spill.cpp
+--- a/src/amd/compiler/aco_spill.cpp
++++ b/src/amd/compiler/aco_spill.cpp
+@@ -8,6 +8,7 @@
+ #include "aco_builder.h"
+ #include "aco_ir.h"
+ #include "aco_util.h"
++#include "util/u_debug.h"
+ 
+ #include <algorithm>
+ #include <cstring>
+@@ -75,7 +76,7 @@
+    std::vector<loop_info> loop;
+ 
+    std::vector<use_info> ssa_infos;
+-   std::vector<std::pair<RegClass, std::unordered_set<uint32_t>>> interferences;
++   std::vector<std::pair<RegClass, IDSet>> interferences;
+    std::vector<std::vector<uint32_t>> affinities;
+    std::vector<bool> is_reloaded;
+    aco::unordered_map<Temp, remat_info> remat;
+@@ -161,7 +162,7 @@
+ 
+    uint32_t allocate_spill_id(RegClass rc)
+    {
+-      interferences.emplace_back(rc, std::unordered_set<uint32_t>());
++      interferences.emplace_back(rc, IDSet(memory));
+       is_reloaded.push_back(false);
+       return next_spill_id++;
+    }
+@@ -1888,7 +1889,9 @@
+     * Limit to single wave workgroups, to avoid needing the wave_id for the offset.
+     * If we have a scratch stack pointer, don't use LDS at all.
+     */
+-   if ((program->stage == compute_cs || program->stage == raytracing_cs) &&
++   if (!(debug_flags & DEBUG_NO_LDS_SPILL) &&
++       !debug_get_bool_option("ACO_NO_LDS_SPILL", false) &&
++       (program->stage == compute_cs || program->stage == raytracing_cs) &&
+        program->workgroup_size <= program->wave_size && !program->stack_ptr.id() &&
+        program->gfx_level >= GFX9) {
+       int used_lds = program->config->lds_size;
+diff --git a/src/compiler/nir/nir_opt_loop_unroll.c b/src/compiler/nir/nir_opt_loop_unroll.c
+--- a/src/compiler/nir/nir_opt_loop_unroll.c
++++ b/src/compiler/nir/nir_opt_loop_unroll.c
+@@ -1021,7 +1021,10 @@
+    /* Don't attempt to unroll a second inner loop in this pass, wait until the
+     * next pass as we have altered the cf.
+     */
+-   if (!progress && loop->control != nir_loop_control_dont_unroll) {
++   const nir_shader_compiler_options *options = impl->function->shader->options;
++   if (!progress && loop->control != nir_loop_control_dont_unroll &&
++       (impl->ssa_alloc <= (1u << 20) || options->force_indirect_unrolling != 0 ||
++        options->force_indirect_unrolling_sampler)) {
+ 
+       /* Remove the conditional break statements associated with all terminators
+        * that are associated with a fixed iteration count, except for the one
+@@ -1170,6 +1173,12 @@
+                          bool force_unroll_sampler_indirect)
+ {
+    bool progress = false;
++   if (impl->ssa_alloc > (1u << 20) && indirect_mask == 0 &&
++       !force_unroll_sampler_indirect) {
++      nir_no_progress(impl);
++      return false;
++   }
++
+    nir_metadata_require(impl, nir_metadata_loop_analysis, indirect_mask,
+                         (int)force_unroll_sampler_indirect);
+    nir_metadata_require(impl, nir_metadata_block_index);
+diff --git a/src/compiler/nir/tests/loop_unroll_tests.cpp b/src/compiler/nir/tests/loop_unroll_tests.cpp
+--- a/src/compiler/nir/tests/loop_unroll_tests.cpp
++++ b/src/compiler/nir/tests/loop_unroll_tests.cpp
+@@ -147,6 +147,58 @@
+    }
+ 
+    return count;
++}
++
++static nir_variable *
++build_wrapper_loop_with_output_store(nir_builder *bld)
++{
++   nir_variable *out =
++      nir_variable_create(bld->shader, nir_var_shader_out, glsl_int_type(),
++                          "wrapper_loop_output");
++
++   nir_loop *loop = nir_push_loop(bld);
++   nir_store_var(bld, out, nir_imm_int(bld, 42), 1);
++   nir_jump(bld, nir_jump_break);
++   nir_pop_loop(bld, loop);
++
++   return out;
++}
++
++static void
++expect_wrapper_loop_contents(nir_function_impl *impl, nir_variable *out,
++                             bool expect_loop)
++{
++   unsigned store_count = 0;
++   unsigned break_count = 0;
++   bool saw_value = false;
++   bool saw_output_address = false;
++
++   nir_foreach_block(block, impl) {
++      nir_foreach_instr(instr, block) {
++         if (instr->type == nir_instr_type_intrinsic) {
++            nir_intrinsic_instr *intrin = nir_instr_as_intrinsic(instr);
++            if (intrin->intrinsic != nir_intrinsic_store_deref)
++               continue;
++
++            nir_deref_instr *deref = nir_src_as_deref(intrin->src[0]);
++            if (nir_deref_instr_get_variable(deref) != out)
++               continue;
++
++            store_count++;
++            saw_output_address = true;
++            saw_value |= nir_src_is_const(intrin->src[1]) &&
++                         nir_src_as_int(intrin->src[1]) == 42;
++         } else if (instr->type == nir_instr_type_jump &&
++                    nir_instr_as_jump(instr)->type == nir_jump_break) {
++            break_count++;
++         }
++      }
++   }
++
++   EXPECT_EQ(store_count, 1);
++   EXPECT_TRUE(saw_output_address);
++   EXPECT_TRUE(saw_value);
++   EXPECT_EQ(break_count, expect_loop ? 1u : 0u);
+ }
+ 
+ static void
+@@ -310,3 +362,78 @@
+    EXPECT_EQ(4, count_used_instr(nir_op_flt));
+    EXPECT_EQ(1, count_unused_instr(nir_op_flt));
+ }
++
++TEST_F(nir_loop_unroll_test, wrapper_unroll_at_ssa_alloc_limit)
++{
++   nir_variable *out = build_wrapper_loop_with_output_store(&bld);
++   nir_validate_shader(bld.shader, "before wrapper unroll at SSA limit");
++
++   nir_shader_compiler_options options = *bld.shader->options;
++   options.force_indirect_unrolling = static_cast<nir_variable_mode>(0);
++   options.force_indirect_unrolling_sampler = false;
++   bld.shader->options = &options;
++
++   /* The allocator may have holes; this models a large valid SSA index space
++    * without allocating millions of instructions in a unit test.
++    */
++   bld.impl->ssa_alloc = 1u << 20;
++
++   EXPECT_TRUE(nir_opt_loop_unroll(bld.shader));
++   EXPECT_EQ(count_loops(), 0);
++   expect_wrapper_loop_contents(bld.impl, out, false);
++   nir_validate_shader(bld.shader, "after wrapper unroll at SSA limit");
++}
++
++TEST_F(nir_loop_unroll_test, wrapper_unroll_skipped_above_ssa_alloc_limit)
++{
++   nir_variable *out = build_wrapper_loop_with_output_store(&bld);
++   nir_validate_shader(bld.shader, "before wrapper unroll above SSA limit");
++
++   nir_shader_compiler_options options = *bld.shader->options;
++   options.force_indirect_unrolling = static_cast<nir_variable_mode>(0);
++   options.force_indirect_unrolling_sampler = false;
++   bld.shader->options = &options;
++
++   bld.impl->ssa_alloc = (1u << 20) + 1;
++
++   EXPECT_FALSE(nir_opt_loop_unroll(bld.shader));
++   EXPECT_EQ(count_loops(), 1);
++   expect_wrapper_loop_contents(bld.impl, out, true);
++   nir_validate_shader(bld.shader, "after wrapper unroll above SSA limit");
++}
++
++TEST_F(nir_loop_unroll_test, wrapper_unroll_large_ssa_alloc_with_indirect_mask)
++{
++   nir_variable *out = build_wrapper_loop_with_output_store(&bld);
++   nir_validate_shader(bld.shader, "before required wrapper unroll with indirect mask");
++
++   nir_shader_compiler_options options = *bld.shader->options;
++   options.force_indirect_unrolling = nir_var_all;
++   options.force_indirect_unrolling_sampler = false;
++   bld.shader->options = &options;
++
++   bld.impl->ssa_alloc = (1u << 20) + 1;
++
++   EXPECT_TRUE(nir_opt_loop_unroll(bld.shader));
++   EXPECT_EQ(count_loops(), 0);
++   expect_wrapper_loop_contents(bld.impl, out, false);
++   nir_validate_shader(bld.shader, "after required wrapper unroll with indirect mask");
++}
++
++TEST_F(nir_loop_unroll_test, wrapper_unroll_large_ssa_alloc_with_sampler_indirect)
++{
++   nir_variable *out = build_wrapper_loop_with_output_store(&bld);
++   nir_validate_shader(bld.shader, "before required wrapper unroll with sampler indirect");
++
++   nir_shader_compiler_options options = *bld.shader->options;
++   options.force_indirect_unrolling = static_cast<nir_variable_mode>(0);
++   options.force_indirect_unrolling_sampler = true;
++   bld.shader->options = &options;
++
++   bld.impl->ssa_alloc = (1u << 20) + 1;
++
++   EXPECT_TRUE(nir_opt_loop_unroll(bld.shader));
++   EXPECT_EQ(count_loops(), 0);
++   expect_wrapper_loop_contents(bld.impl, out, false);
++   nir_validate_shader(bld.shader, "after required wrapper unroll with sampler indirect");
++}

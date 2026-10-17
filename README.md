@@ -58,6 +58,7 @@ FPS is `1000 / median flip interval in milliseconds`. It measures presentation o
 - [Submitted current-main buffer-pool PR #7056](https://github.com/boykopovar/AnyPS5/pull/7056) ([submission text](docs/PR-DRAFT.md)), plus [other candidates and limitations](docs/UPSTREAM-CANDIDATES.md).
 - [PRs used, local adaptations and attribution](docs/PR-INTEGRATION.md): 22 identified PR sources, plus the upstream EXEC equivalent, with verified authors and status.
 - [Combined local source export and application notes](docs/LOCAL-INTEGRATION.md): the integrated AnyPS5 delta and SPIRV-Tools delta against their recorded bases.
+- [Modified Mesa source patch and build instructions](docs/MESA-REPRODUCTION.md): the Mesa 26.2.3 ACO/NIR delta omitted from the original export.
 - [Evidence and claim provenance](docs/EVIDENCE.md).
 - `evidence/`: regression results, microbenchmark output and selected frame intervals.
 - `patches/`: the combined local source export, SPIRV-Tools delta, and focused EXEC/descriptor excerpts. The historical exports use an older, modified base. The separate `small-device-buffer-retention.patch` is the focused current-main production contribution described above.
