@@ -1,0 +1,99 @@
+diff --git a/core/libs/prx/libSceAgcDriver/CMakeLists.txt b/core/libs/prx/libSceAgcDriver/CMakeLists.txt
+index b21af51bd..3f375e9c2 100644
+--- a/core/libs/prx/libSceAgcDriver/CMakeLists.txt
++++ b/core/libs/prx/libSceAgcDriver/CMakeLists.txt
+@@ -804,8 +804,14 @@ configure_windows_unwind(agc_buffer_pool_tests)
+ if(BUILD_TESTING)
+     set_target_properties(agc_buffer_pool_tests PROPERTIES EXCLUDE_FROM_ALL OFF)
+     add_test(NAME agc_buffer_pool COMMAND agc_buffer_pool_tests)
+-    if(WIN32)
+-        set_tests_properties(agc_buffer_pool PROPERTIES ENVIRONMENT_MODIFICATION
++    add_test(NAME agc_buffer_pool_small_device_shared COMMAND agc_buffer_pool_tests --small-device-retention)
++    set_tests_properties(agc_buffer_pool_small_device_shared PROPERTIES ENVIRONMENT
++        "APS5_STAGING_POOL_MIB=256;APS5_BUFFER_POOL_SHARED=1")
++    add_test(NAME agc_buffer_pool_small_device_no_staging COMMAND agc_buffer_pool_tests --small-device-retention)
++    set_tests_properties(agc_buffer_pool_small_device_no_staging PROPERTIES ENVIRONMENT
++        "APS5_STAGING_POOL_MIB=0")
++    if(WIN32)
++        set_tests_properties(agc_buffer_pool agc_buffer_pool_small_device_shared agc_buffer_pool_small_device_no_staging PROPERTIES ENVIRONMENT_MODIFICATION
+             "PATH=path_list_prepend:$<TARGET_FILE_DIR:libc>")
+     endif()
+ endif()
+diff --git a/core/libs/prx/libSceAgcDriver/Graphics/src/BufferPool.cpp b/core/libs/prx/libSceAgcDriver/Graphics/src/BufferPool.cpp
+index 6ec77770b..ebf415fe5 100644
+--- a/core/libs/prx/libSceAgcDriver/Graphics/src/BufferPool.cpp
++++ b/core/libs/prx/libSceAgcDriver/Graphics/src/BufferPool.cpp
+@@ -223,7 +223,7 @@ VkBufferUsageFlags BufferPool::Usage(VkBufferUsageFlags usage, VkMemoryPropertyF
+ }
+ 
+ BufferPool::Tier& BufferPool::tierFor(std::size_t capacity, VkMemoryPropertyFlags properties) {
+-    if (DeviceTiered(properties)) return deviceTier;
++    if (DeviceTiered(properties) && (sharedTiers() || capacity >= classLimit)) return deviceTier;
+     return !sharedTiers() && capacity < classLimit ? smallTier : largeTier;
+ }
+ 
+diff --git a/core/libs/prx/libSceAgcDriver/tests/BufferPool.cpp b/core/libs/prx/libSceAgcDriver/tests/BufferPool.cpp
+index f0ac0664a..1e320bad1 100644
+--- a/core/libs/prx/libSceAgcDriver/tests/BufferPool.cpp
++++ b/core/libs/prx/libSceAgcDriver/tests/BufferPool.cpp
+@@ -2,6 +2,7 @@
+ #include "prx/libSceAgcDriver/Graphics/include/Resources.hpp"
+ #include <algorithm>
+ #include <cstdint>
++#include <cstdlib>
+ #include <cstring>
+ #include <cstdio>
+ #include <deque>
+@@ -326,6 +327,31 @@ void SmallDeviceClasses() {
+     Expect(nextArgs.Handle() == tiny && mock.allocations == made, "a 20-byte device request did not reuse the retained 256-byte buffer of its class");
+ }
+ 
++void SmallDeviceRetention() {
++    mock = MockDevice{};
++    {
++        auto context = mockContext();
++        constexpr auto usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
++        const auto deviceBudget = BufferPool::DeviceBudget(context.memory);
++        const auto bytes = static_cast<std::size_t>((deviceBudget != 0 ? deviceBudget : 512 * MiB) / 2) + MiB;
++        VkDeviceMemory small = VK_NULL_HANDLE;
++        {
++            DeviceBuffer buffer(context, 256, usage);
++            small = MemoryOf(buffer.Handle());
++        }
++        std::vector<std::unique_ptr<DeviceBuffer>> large;
++        for (int i = 0; i < 2; ++i) large.push_back(std::make_unique<DeviceBuffer>(context, bytes, usage));
++        large.clear();
++        Expect(mock.frees != 0, "large device buffers did not exercise pool budget eviction");
++        const auto made = mock.allocations;
++        const bool isolated = std::getenv("APS5_BUFFER_POOL_SHARED") == nullptr;
++        DeviceBuffer again(context, 256, usage);
++        Expect((MemoryOf(again.Handle()) == small) == isolated, "small device buffer retention did not follow the separate or shared pool budget");
++        Expect(mock.allocations == made + (isolated ? 0 : 1), "large device buffer churn changed small buffer allocation reuse");
++    }
++    Expect(mock.liveBytes == 0 && mock.liveBuffers.empty(), "device pool tier retention leaked Vulkan objects");
++}
++
+ void Slabs() {
+     Expect(BufferPool::SlabEligible(512, 256, 512, 64), "a size class with a smaller alignment and atom was refused a slab");
+     Expect(!BufferPool::SlabEligible(512, 1024, 512, 64), "a size class below its alignment was given a slab");
+@@ -530,14 +556,19 @@ void PartialSlabDoesNotRetry() {
+ 
+ }
+ 
+-int main() {
++int main(int argc, char** argv) {
+     try {
++        if (argc == 2 && std::string_view(argv[1]) == "--small-device-retention") {
++            SmallDeviceRetention();
++            return failures == 0 ? 0 : 1;
++        }
+         SizeClassesAndDirections();
+         LargerClass();
+         KeptUntilFence();
+         Budget();
+         AddressAndHostUnchanged();
+         SmallDeviceClasses();
++        SmallDeviceRetention();
+         Slabs();
+         for (const auto result : {VK_ERROR_OUT_OF_DEVICE_MEMORY, VK_ERROR_OUT_OF_HOST_MEMORY}) {
+             AllocationRecovery(result, false);

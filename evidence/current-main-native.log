@@ -1,0 +1,20 @@
+Current-main native smoke test — October 17, 2026
+Source: d8254f8f3ea157c40c2f596893805d5d629a4e0e (main f05fc7d953d30160cb05411875b2824fd10acc15 plus small-device-buffer-retention)
+Run: anyps5-yotei-20261017-091300-1b747f
+Observed duration: 122.15 seconds
+Release; ANYPS5_ENABLE_SPIRV_TOOLS=OFF; APS5_ENABLE_TIMING_LOG=OFF
+Freshly converted title executable and guest libc; all system PRX from the clean branch; dedicated runtime and cold AnyPS5 shader cache.
+Existing locally modified Mesa/RADV build and its shader cache reused.
+MALLOC_ARENA_MAX=2; ACO_NO_LDS_SPILL=1; 4 GiB desktop reserve; 12 GiB RAM and 2 GiB swap caps.
+Capture requested every 10 presentations; zero BMP files. No exact presentation total or FPS is established.
+{"ActiveState": "failed", "ControlGroup": "", "ExecMainStatus": "9", "MemoryMax": "12884901888", "MemoryPeak": "12884901888", "MemorySwapMax": "2147483648", "MemorySwapPeak": "1313841152", "Result": "oom-kill", "SubState": "failed"}
+[src/VulkanDevice.cpp:1117 VulkanDevice] Selected GPU name=AMD Radeon RX 9060 XT (RADV GFX1200) vendor=0x1002 device=0x7590 subgroup=64
+[shader-disk-cache] $WORKSPACE/recovery/anyps5-migration/case-study-capture/current-main/runtime/shader_cache/a7e9f7896e0155c4 (source version a7e9f7896e0155c4, format 36)
+[src/VulkanDevice.cpp:1117 VulkanDevice] Selected GPU name=AMD Radeon RX 9060 XT (RADV GFX1200) vendor=0x1002 device=0x7590 subgroup=64
+[shader-disk-cache] (10 s): 0 hits, 944 misses, 943 writes (262.8 MiB), 0 load failures, 0 write failures; resource plans: 0 hits, 934 misses, 929 writes, 0 load failures; 0.0 MiB read in 52.2 ms (totals: 0 hits, 944 misses, 943 writes; plans 0 hits, 934 misses)
+[shader-disk-cache] (10 s): 0 hits, 86 misses, 86 writes (201.9 MiB), 0 load failures, 0 write failures; resource plans: 0 hits, 80 misses, 79 writes, 0 load failures; 0.0 MiB read in 7.0 ms (totals: 0 hits, 1030 misses, 1029 writes; plans 0 hits, 1014 misses)
+[shader-disk-cache] (10 s): 0 hits, 341 misses, 341 writes (265.7 MiB), 0 load failures, 0 write failures; resource plans: 0 hits, 330 misses, 330 writes, 0 load failures; 0.0 MiB read in 23.7 ms (totals: 0 hits, 1371 misses, 1370 writes; plans 0 hits, 1344 misses)
+[shader-disk-cache] (10 s): 0 hits, 218 misses, 217 writes (181.8 MiB), 0 load failures, 0 write failures; resource plans: 0 hits, 214 misses, 205 writes, 0 load failures; 0.0 MiB read in 16.5 ms (totals: 0 hits, 1589 misses, 1587 writes; plans 0 hits, 1558 misses)
+[shader-disk-cache] (10 s): 0 hits, 51 misses, 53 writes (63.5 MiB), 0 load failures, 0 write failures; resource plans: 0 hits, 45 misses, 56 writes, 0 load failures; 0.0 MiB read in 3.3 ms (totals: 0 hits, 1640 misses, 1640 writes; plans 0 hits, 1603 misses)
+[shader-disk-cache] (10 s): 0 hits, 2 misses, 1 writes (21.9 MiB), 0 load failures, 0 write failures; resource plans: 0 hits, 1 misses, 1 writes, 0 load failures; 0.0 MiB read in 0.3 ms (totals: 0 hits, 1642 misses, 1641 writes; plans 0 hits, 1604 misses)
+[shader-disk-cache] (10 s): 0 hits, 16 misses, 17 writes (24.3 MiB), 0 load failures, 0 write failures; resource plans: 0 hits, 8 misses, 9 writes, 0 load failures; 0.0 MiB read in 0.6 ms (totals: 0 hits, 1658 misses, 1658 writes; plans 0 hits, 1612 misses)

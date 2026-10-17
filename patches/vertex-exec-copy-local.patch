@@ -1,0 +1,21 @@
+diff --git a/core/shader/recompiler/Translation/src/ControlFlowInstructions.cpp b/core/shader/recompiler/Translation/src/ControlFlowInstructions.cpp
+index 2a47caf7..385e7307 100644
+--- a/core/shader/recompiler/Translation/src/ControlFlowInstructions.cpp
++++ b/core/shader/recompiler/Translation/src/ControlFlowInstructions.cpp
+@@ -247,7 +247,15 @@ void TranslationContext::movB32(const RdnaInstruction& inst, bool applyFloatModi
+ }
+ 
+ void TranslationContext::sMovB64(const RdnaInstruction& inst) {
+-    const std::array<IrU32, 2> value = readU32Pair(sourceAt(inst, 0u));
++    const auto& source = sourceAt(inst, 0u);
++    if (program.Resources().stage == IrShaderStage::Vertex && source.kind == RdnaOperandKind::ExecLo && inst.destination.kind == RdnaOperandKind::ScalarRegister) {
++        // Vertex subgroups can be partial. A raw EXEC write cannot create host
++        // invocations; snapshots used by scalar waterfall loops must name only
++        // participating invocations, just as the entry EXEC ballot does.
++        writeU32Pair(inst.destination, ballotMask(IrU1(ir.GetExec())));
++        return;
++    }
++    const std::array<IrU32, 2> value = readU32Pair(source);
+     writeU32Pair(inst.destination, value);
+ }
+ 

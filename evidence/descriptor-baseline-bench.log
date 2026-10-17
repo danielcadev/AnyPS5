@@ -1,0 +1,7 @@
+WARNING: radv is not a conformant Vulkan implementation, testing use only.
+snapshots=1 round=1 us_per_draw=28.311 checksum=65280
+snapshots=1 round=2 us_per_draw=30.415 checksum=97920
+snapshots=1 round=3 us_per_draw=28.181 checksum=130560
+snapshots=8 round=1 us_per_draw=29.597 checksum=522240
+snapshots=8 round=2 us_per_draw=30.695 checksum=783360
+snapshots=8 round=3 us_per_draw=30.635 checksum=1044480

@@ -1,0 +1,99 @@
+Running as unit: anyps5-exec-copy-after-0821.service
+[src/VulkanDevice.cpp:605 VulkanDevice] VulkanDevice constructor window=(nil)
+[src/VulkanDevice.cpp:614 VulkanDevice] Vulkan loader loaded library=0x1acafdf0
+[src/VulkanDevice.cpp:648 VulkanDevice] Vulkan instance created instance=0x1acb0f90
+WARNING: radv is not a conformant Vulkan implementation, testing use only.
+[src/VulkanDevice.cpp:659 VulkanDevice] Physical device count=1
+[src/VulkanDevice.cpp:692 VulkanDevice] Physical device candidate=0x1acdbe70 name=AMD Radeon RX 9060 XT (RADV GFX1200) api=0x404162 type=2
+[src/VulkanDevice.cpp:739 VulkanDevice] Physical device selected physical=0x1acdbe70 queueFamily=0
+[src/VulkanDevice.cpp:752 VulkanDevice] Selected GPU name=AMD Radeon RX 9060 XT (RADV GFX1200) vendor=0x1002 device=0x7590 subgroup=64
+[src/VulkanDevice.cpp:754 VulkanDevice] Memory heap 0 size=16128.0 MiB flags=0x1
+[src/VulkanDevice.cpp:754 VulkanDevice] Memory heap 1 size=16002.6 MiB flags=0x0
+[src/VulkanDevice.cpp:754 VulkanDevice] Memory heap 2 size=256.0 MiB flags=0x1
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 0 heap=0 flags=0x1
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 1 heap=0 flags=0x1
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 2 heap=1 flags=0x6
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 3 heap=2 flags=0x7
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 4 heap=2 flags=0x7
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 5 heap=1 flags=0xe
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 6 heap=1 flags=0xe
+[src/VulkanDevice.cpp:946 VulkanDevice] Vulkan features tessellationAvailable=1 mesh=1 depthClip=1 depthRangeUnrestricted=1
+[src/VulkanDevice.cpp:1099 VulkanDevice] Compute wave32 programs run on subgroups of 32
+[src/VulkanDevice.cpp:1130 VulkanDevice] Vulkan device ready device=0x1ad13060 queue=0x1acbb130 family=0
+[write-watch] host imports resolve write protection: yes (4 of 4 scratch pages written after a GPU read, 4 after the import); imported ranges are compared
+[write-watch] dma-buf imports keep write protection: yes (0 of 4 scratch pages written after a GPU read, 0 after the import, 1 seen after a CPU store); imported ranges stay watched
+[pipeline-cache] loaded 4.0 KiB from $WORKSPACE/anyps5_build/tests/shader_cache/vk-pipelines-1002-7590-06802003-1bd7d9520a6c9e4ad5f5fff43c50c0b0.bin
+draw=3 vertex=0 entry=0000000000000007 copied=0000000000000007 sparse=0000000000000002 literal=ffffffffffffffff
+draw=3 vertex=1 entry=0000000000000007 copied=0000000000000007 sparse=0000000000000002 literal=ffffffffffffffff
+draw=3 vertex=2 entry=0000000000000007 copied=0000000000000007 sparse=0000000000000002 literal=ffffffffffffffff
+draw=64 vertex=0 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=1 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=2 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=3 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=4 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=5 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=6 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=7 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=8 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=9 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=10 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=11 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=12 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=13 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=14 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=15 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=16 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=17 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=18 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=19 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=20 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=21 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=22 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=23 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=24 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=25 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=26 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=27 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=28 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=29 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=30 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=31 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=32 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 [pipeline-cache] saved 5.8 KiB to $WORKSPACE/anyps5_build/tests/shader_cache/vk-pipelines-1002-7590-06802003-1bd7d9520a6c9e4ad5f5fff43c50c0b0.bin in 0.3 ms (teardown)
+vertex=33 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=34 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=35 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=36 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=37 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=38 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=39 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=40 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=41 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=42 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=43 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=44 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=45 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=46 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=47 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=48 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=49 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=50 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=51 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=52 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=53 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=54 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=55 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=56 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=57 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=58 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=59 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=60 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=61 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=62 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+draw=64 vertex=63 entry=ffffffffffffffff copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+vertex EXEC copy tests passed
+          Finished with result: success
+Main processes terminated with: code=exited, status=0/SUCCESS
+               Service runtime: 40ms
+             CPU time consumed: 31ms
+                   Memory peak: 5.4M (swap: 0B)

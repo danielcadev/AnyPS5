@@ -1,0 +1,10 @@
+asset,run,source_file,frame,caption
+assets/wolf-frame800.png,anyps5-yotei-20261017-070914-76a8a3,frame_000.png,800,"Wolf calibration, no gameplay claim."
+assets/tree-rendering-defects-frame860.png,anyps5-yotei-20261016-220144-0b6a0a,frame_003.png,860,"Tree scene reached; rendering visibly incorrect. Clean capture configuration, no shader substitution."
+assets/tree-partial-frame858.png,anyps5-yotei-20261016-212211-038bbc,frame_008.png,858,Tree/bark content visible with missing or incorrect rendering. Instrumented readback/trace run.
+assets/wolf-x-frame840.png,anyps5-yotei-20261017-061353-cc68c7,frame_002.png,840,"Wolf brightness screen with instruction text, slider and Cross prompt."
+assets/wolf-x-frame860.png,anyps5-yotei-20261017-061353-cc68c7,frame_003.png,860,"Wolf brightness screen, clear text and Cross prompt; not gameplay."
+assets/experience-selection-frame920.png,anyps5-yotei-20261017-083159-9b94aa,frame_004.png,920,"Select an Experience setup screen, Standard option and Cross prompt. This is not the difficulty selector."
+assets/tree-rendering-defects-frame940.png,anyps5-yotei-20261017-083159-9b94aa,frame_005.png,940,"Tree scene after calibration, with visible green/magenta rendering defects."
+assets/wolf-x-verification-frame840.png,anyps5-yotei-20261017-083159-9b94aa,frame_000.png,840,"Wolf brightness calibration with instruction text, slider and Cross prompt."
+assets/tree-verification-frame880.png,anyps5-yotei-20261017-083159-9b94aa,frame_002.png,880,"Tree scene reached, with visible green/magenta rendering corruption."

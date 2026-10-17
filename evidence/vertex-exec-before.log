@@ -1,0 +1,33 @@
+Running as unit: anyps5-exec-copy-before-0820.service
+[src/VulkanDevice.cpp:605 VulkanDevice] VulkanDevice constructor window=(nil)
+[src/VulkanDevice.cpp:614 VulkanDevice] Vulkan loader loaded library=0x4146df0
+[src/VulkanDevice.cpp:648 VulkanDevice] Vulkan instance created instance=0x4147f90
+WARNING: radv is not a conformant Vulkan implementation, testing use only.
+[src/VulkanDevice.cpp:659 VulkanDevice] Physical device count=1
+[src/VulkanDevice.cpp:692 VulkanDevice] Physical device candidate=0x4172e70 name=AMD Radeon RX 9060 XT (RADV GFX1200) api=0x404162 type=2
+[src/VulkanDevice.cpp:739 VulkanDevice] Physical device selected physical=0x4172e70 queueFamily=0
+[src/VulkanDevice.cpp:752 VulkanDevice] Selected GPU name=AMD Radeon RX 9060 XT (RADV GFX1200) vendor=0x1002 device=0x7590 subgroup=64
+[src/VulkanDevice.cpp:754 VulkanDevice] Memory heap 0 size=16128.0 MiB flags=0x1
+[src/VulkanDevice.cpp:754 VulkanDevice] Memory heap 1 size=16002.6 MiB flags=0x0
+[src/VulkanDevice.cpp:754 VulkanDevice] Memory heap 2 size=256.0 MiB flags=0x1
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 0 heap=0 flags=0x1
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 1 heap=0 flags=0x1
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 2 heap=1 flags=0x6
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 3 heap=2 flags=0x7
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 4 heap=2 flags=0x7
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 5 heap=1 flags=0xe
+[src/VulkanDevice.cpp:755 VulkanDevice] Memory type 6 heap=1 flags=0xe
+[src/VulkanDevice.cpp:946 VulkanDevice] Vulkan features tessellationAvailable=1 mesh=1 depthClip=1 depthRangeUnrestricted=1
+[src/VulkanDevice.cpp:1099 VulkanDevice] Compute wave32 programs run on subgroups of 32
+[src/VulkanDevice.cpp:1130 VulkanDevice] Vulkan device ready device=0x41aa060 queue=0x4152130 family=0
+[write-watch] host imports resolve write protection: yes (4 of 4 scratch pages written after a GPU read, 4 after the import); imported ranges are compared
+[write-watch] dma-buf imports keep write protection: yes (0 of 4 scratch pages written after a GPU read, 0 after the import, 1 seen after a CPU store); imported ranges stay watched
+[pipeline-cache] loaded 1.5 KiB from $WORKSPACE/anyps5_build/tests/shader_cache/vk-pipelines-1002-7590-06802003-1bd7d9520a6c9e4ad5f5fff43c50c0b0.bin
+[pipeline-cache] saved 4.0 KiB to $WORKSPACE/anyps5_build/tests/shader_cache/vk-pipelines-1002-7590-06802003-1bd7d9520a6c9e4ad5f5fff43c50c0b0.bin in 0.2 ms (teardown)
+draw=3 vertex=0 entry=0000000000000007 copied=ffffffffffffffff sparse=aaaaaaaaaaaaaaaa literal=ffffffffffffffff
+AGC graphics: vertex EXEC copy, draw=3 vertex=0: EXEC copied after -1 includes inactive invocations
+          Finished with result: exit-code
+Main processes terminated with: code=exited, status=1/FAILURE
+               Service runtime: 43ms
+             CPU time consumed: 27ms
+                   Memory peak: 14.5M (swap: 0B)

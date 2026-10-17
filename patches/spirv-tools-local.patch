@@ -1,0 +1,215 @@
+diff --git a/source/opt/aggressive_dead_code_elim_pass.cpp b/source/opt/aggressive_dead_code_elim_pass.cpp
+index df19294..1387898 100644
+--- a/source/opt/aggressive_dead_code_elim_pass.cpp
++++ b/source/opt/aggressive_dead_code_elim_pass.cpp
+@@ -1040,6 +1040,7 @@ void AggressiveDCEPass::InitExtensions() {
+       "SPV_KHR_subgroup_vote",
+       "SPV_KHR_8bit_storage",
+       "SPV_KHR_16bit_storage",
++      "SPV_KHR_float_controls",
+       "SPV_KHR_device_group",
+       "SPV_KHR_multiview",
+       "SPV_NVX_multiview_per_view_attributes",
+diff --git a/source/opt/fold.cpp b/source/opt/fold.cpp
+index cd070c7..5301ea5 100644
+--- a/source/opt/fold.cpp
++++ b/source/opt/fold.cpp
+@@ -575,6 +575,22 @@ Instruction* InstructionFolder::FoldInstructionToConstant(
+     Instruction* inst, std::function<uint32_t(uint32_t)> id_map) const {
+   analysis::ConstantManager* const_mgr = context_->get_constant_mgr();
+ 
++  if ((inst->opcode() == spv::Op::OpUConvert ||
++       inst->opcode() == spv::Op::OpSConvert) &&
++      context_->get_feature_mgr()->HasCapability(spv::Capability::Shader)) {
++    const analysis::Type* type = const_mgr->GetType(inst);
++    if (const auto* vector = type->AsVector()) type = vector->element_type();
++    const auto* integer = type->AsInteger();
++    // Storage-only small types permit conversions, but not constants.
++    if (integer &&
++        ((integer->width() == 8 &&
++          !context_->get_feature_mgr()->HasCapability(spv::Capability::Int8)) ||
++         (integer->width() == 16 &&
++          !context_->get_feature_mgr()->HasCapability(spv::Capability::Int16)))) {
++      return nullptr;
++    }
++  }
++
+   if (!inst->IsFoldableByFoldScalar() && !inst->IsFoldableByFoldVector() &&
+       !GetConstantFoldingRules().HasFoldingRule(inst)) {
+     return nullptr;
+diff --git a/source/opt/local_single_block_elim_pass.cpp b/source/opt/local_single_block_elim_pass.cpp
+index 1995470..40783b9 100644
+--- a/source/opt/local_single_block_elim_pass.cpp
++++ b/source/opt/local_single_block_elim_pass.cpp
+@@ -247,6 +247,7 @@ void LocalSingleBlockLoadStoreElimPass::InitExtensions() {
+       "SPV_KHR_subgroup_vote",
+       "SPV_KHR_8bit_storage",
+       "SPV_KHR_16bit_storage",
++      "SPV_KHR_float_controls",
+       "SPV_KHR_device_group",
+       "SPV_KHR_multiview",
+       "SPV_NVX_multiview_per_view_attributes",
+diff --git a/source/opt/local_single_store_elim_pass.cpp b/source/opt/local_single_store_elim_pass.cpp
+index 6f28e54..e5cbc72 100644
+--- a/source/opt/local_single_store_elim_pass.cpp
++++ b/source/opt/local_single_store_elim_pass.cpp
+@@ -99,6 +99,7 @@ void LocalSingleStoreElimPass::InitExtensionAllowList() {
+       "SPV_KHR_subgroup_vote",
+       "SPV_KHR_8bit_storage",
+       "SPV_KHR_16bit_storage",
++      "SPV_KHR_float_controls",
+       "SPV_KHR_device_group",
+       "SPV_KHR_multiview",
+       "SPV_NVX_multiview_per_view_attributes",
+diff --git a/source/opt/redundancy_elimination.cpp b/source/opt/redundancy_elimination.cpp
+index 61234fa..fe527b7 100644
+--- a/source/opt/redundancy_elimination.cpp
++++ b/source/opt/redundancy_elimination.cpp
+@@ -44,17 +44,51 @@ bool RedundancyEliminationPass::EliminateRedundanciesFrom(
+     DominatorTreeNode* bb, const ValueNumberTable& vnTable) {
+   struct State {
+     DominatorTreeNode* node;
+-    std::map<uint32_t, uint32_t> value_to_id_map;
++    size_t next_child;
++    size_t added_begin;
++    bool entered;
+   };
++  std::map<uint32_t, uint32_t> value_to_id_map;
++  std::vector<uint32_t> added_values;
+   std::vector<State> todo;
+-  todo.push_back({bb, std::map<uint32_t, uint32_t>()});
++  todo.push_back({bb, 0, 0, false});
+   bool modified = false;
+-  for (size_t next_node = 0; next_node < todo.size(); next_node++) {
+-    modified |= EliminateRedundanciesInBB(todo[next_node].node->bb_, vnTable,
+-                                          &todo[next_node].value_to_id_map);
+-    for (DominatorTreeNode* child : todo[next_node].node->children_) {
+-      todo.push_back({child, todo[next_node].value_to_id_map});
++  while (!todo.empty()) {
++    auto& state = todo.back();
++    if (!state.entered) {
++      state.entered = true;
++      state.node->bb_->ForEachInst([&](Instruction* inst) {
++        if (inst->result_id() == 0) {
++          return;
++        }
++        const uint32_t value = vnTable.GetValueNumber(inst);
++        if (value == 0) {
++          return;
++        }
++        auto candidate = value_to_id_map.insert({value, inst->result_id()});
++        if (candidate.second) {
++          added_values.push_back(value);
++        } else {
++          context()->KillNamesAndDecorates(inst);
++          context()->ReplaceAllUsesWith(inst->result_id(),
++                                         candidate.first->second);
++          context()->KillInst(inst);
++          modified = true;
++        }
++      });
+     }
++
++    const auto& children = state.node->children_;
++    if (state.next_child != children.size()) {
++      auto* child = children[state.next_child++];
++      todo.push_back({child, 0, added_values.size(), false});
++      continue;
++    }
++    while (added_values.size() != state.added_begin) {
++      value_to_id_map.erase(added_values.back());
++      added_values.pop_back();
++    }
++    todo.pop_back();
+   }
+   return modified;
+ }
+diff --git a/source/opt/redundancy_elimination.h b/source/opt/redundancy_elimination.h
+index 8c6e16a..446e33c 100644
+--- a/source/opt/redundancy_elimination.h
++++ b/source/opt/redundancy_elimination.h
+@@ -40,9 +40,8 @@ class RedundancyEliminationPass : public LocalRedundancyEliminationPass {
+   // |vnTable| must have computed a value number for every result id defined
+   // in the function containing |bb|.
+   //
+-  // |value_to_ids| is a map from value number to ids.  If {vn, id} is in
+-  // |value_to_ids| then vn is the value number of id, and the definition of id
+-  // dominates |bb|.
++  // Each node is processed with values found in its dominators. Entries
++  // introduced below |bb| are removed when traversal leaves that subtree.
+   //
+   // Returns true if at least one instruction is deleted.
+   bool EliminateRedundanciesFrom(DominatorTreeNode* bb,
+diff --git a/source/val/validate_cfg.cpp b/source/val/validate_cfg.cpp
+index b7e570d..92ecc97 100644
+--- a/source/val/validate_cfg.cpp
++++ b/source/val/validate_cfg.cpp
+@@ -390,28 +390,29 @@ spv_result_t MergeBlockAssert(ValidationState_t& _, uint32_t merge_block) {
+ void UpdateContinueConstructExitBlocks(
+     Function& function,
+     const std::vector<std::pair<uint32_t, uint32_t>>& back_edges) {
++  if (back_edges.empty()) return;
+   auto& constructs = function.constructs();
+-  // TODO(umar): Think of a faster way to do this
++  std::unordered_map<uint32_t, std::vector<Construct*>> loops_by_header;
++  for (auto& construct : constructs) {
++    if (construct.type() == ConstructType::kLoop) {
++      loops_by_header[construct.entry_block()->id()].push_back(&construct);
++    }
++  }
+   for (auto& edge : back_edges) {
+     uint32_t back_edge_block_id;
+     uint32_t loop_header_block_id;
+     std::tie(back_edge_block_id, loop_header_block_id) = edge;
+-    auto is_this_header = [=](Construct& c) {
+-      return c.type() == ConstructType::kLoop &&
+-             c.entry_block()->id() == loop_header_block_id;
+-    };
+-
+-    for (auto construct : constructs) {
+-      if (is_this_header(construct)) {
+-        Construct* continue_construct =
+-            construct.corresponding_constructs().back();
+-        assert(continue_construct->type() == ConstructType::kContinue);
+-
+-        BasicBlock* back_edge_block;
+-        std::tie(back_edge_block, std::ignore) =
+-            function.GetBlock(back_edge_block_id);
+-        continue_construct->set_exit(back_edge_block);
+-      }
++    const auto found = loops_by_header.find(loop_header_block_id);
++    if (found == loops_by_header.end()) continue;
++    for (const auto* construct : found->second) {
++      Construct* continue_construct =
++          construct->corresponding_constructs().back();
++      assert(continue_construct->type() == ConstructType::kContinue);
++
++      BasicBlock* back_edge_block;
++      std::tie(back_edge_block, std::ignore) =
++          function.GetBlock(back_edge_block_id);
++      continue_construct->set_exit(back_edge_block);
+     }
+   }
+ }
+@@ -1020,16 +1021,20 @@ spv_result_t PerformCfgChecks(ValidationState_t& _) {
+     if (!blocks.empty()) {
+       // Check if the order of blocks in the binary appear before the blocks
+       // they dominate
++      std::unordered_set<const BasicBlock*> preceding_blocks;
++      preceding_blocks.reserve(blocks.size());
++      preceding_blocks.insert(blocks.front());
+       for (auto block = begin(blocks) + 1; block != end(blocks); ++block) {
+         if (auto idom = (*block)->immediate_dominator()) {
+           if (idom != function.pseudo_entry_block() &&
+-              block == std::find(begin(blocks), block, idom)) {
++              preceding_blocks.count(idom) == 0) {
+             return _.diag(SPV_ERROR_INVALID_CFG, _.FindDef(idom->id()))
+                    << "Block " << _.getIdName((*block)->id())
+                    << " appears in the binary before its dominator "
+                    << _.getIdName(idom->id());
+           }
+         }
++        preceding_blocks.insert(*block);
+       }
+       // If we have structured control flow, check that no block has a control
+       // flow nesting depth larger than the limit.

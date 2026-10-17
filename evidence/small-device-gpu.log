@@ -1,0 +1,43 @@
+UpdateCTestConfiguration  from :$WORKSPACE/anyps5-pr-build/DartConfiguration.tcl
+Test project $WORKSPACE/anyps5-pr-build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 218
+    Start 218: agc_device_memory_fallback
+
+218: Test command: $WORKSPACE/anyps5-pr-build/tests/agc_device_memory_fallback_tests
+218: Working Directory: $WORKSPACE/anyps5-pr-build/core/libs/prx/libSceAgcDriver
+218: Environment variables: 
+218:  APS5_NO_PIPELINE_JOURNAL=1
+218: Test timeout computed to be: 10000000
+218: [src/HostCpu.cpp:193 operator()] host CPU AMD Ryzen 7 5700X 8-Core Processor: has SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2, POPCNT, LZCNT, BMI1, BMI2, MOVBE, CMPXCHG16B, LAHF/SAHF, AVX, AVX2, FMA, F16C, AES, PCLMULQDQ, RDRAND, RDSEED, ADX, SHA, CLFLUSHOPT, CLWB, RDPID, XSAVEOPT, XSAVEC, SSE4A, PREFETCHW, CLZERO, OS AVX state (XCR0); lacks none
+218: [gpu] test: device-local heap 0 uses 2937 of its 3000 MiB budget, 67108864 bytes placed in host memory type 0; 1 such allocations, 64 MiB
+218: [gpu] test: device-local heap 0 uses 3633 of its 2952 MiB budget, 67108864 bytes placed in host memory type 0; 2 such allocations, 128 MiB
+218: device memory placement tests passed
+1/2 Test #218: agc_device_memory_fallback .......   Passed    0.00 sec
+test 576
+    Start 576: agc_driver_pooled_buffer_range
+
+576: Test command: $WORKSPACE/anyps5-pr-build/tests/agc_driver_pooled_buffer_range_tests
+576: Working Directory: $WORKSPACE/anyps5-pr-vertex-exec
+576: Environment variables: 
+576:  ANYPS5_NO_SHADER_CACHE=1
+576:  APS5_NO_PIPELINE_JOURNAL=1
+576: Test timeout computed to be: 10000000
+576: [src/HostCpu.cpp:193 operator()] host CPU AMD Ryzen 7 5700X 8-Core Processor: has SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2, POPCNT, LZCNT, BMI1, BMI2, MOVBE, CMPXCHG16B, LAHF/SAHF, AVX, AVX2, FMA, F16C, AES, PCLMULQDQ, RDRAND, RDSEED, ADX, SHA, CLFLUSHOPT, CLWB, RDPID, XSAVEOPT, XSAVEC, SSE4A, PREFETCHW, CLZERO, OS AVX state (XCR0); lacks none
+576: WARNING: radv is not a conformant Vulkan implementation, testing use only.
+576: device AMD Radeon RX 9060 XT (RADV GFX1200)
+576: pooled buffer range tests passed
+2/2 Test #576: agc_driver_pooled_buffer_range ...   Passed    0.02 sec
+
+The following tests passed:
+	agc_device_memory_fallback
+	agc_driver_pooled_buffer_range
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   0.04 sec

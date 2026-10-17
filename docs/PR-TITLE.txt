@@ -1,0 +1,1 @@
+fix(agc): keep small device buffers in the small pool tier
